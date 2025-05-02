@@ -3,40 +3,48 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/olegkoj/jupiter-cloud-automation.git'
-        sh 'ls -la' // Debug: Verify files
+        git 'https://github.com/olegkoj/jupiter-cloud-automation-csharp.git'
+        sh 'ls -la'
       }
     }
     stage('Restore Dependencies') {
       steps {
-        sh 'dotnet restore JupiterCloudAutomation.csproj'
+        dir('JupiterCloudAutomation') {
+          sh 'dotnet restore JupiterCloudAutomation.csproj'
+        }
       }
     }
     stage('Build') {
       steps {
-        sh 'dotnet build JupiterCloudAutomation.csproj --configuration Release'
+        dir('JupiterCloudAutomation') {
+          sh 'dotnet build JupiterCloudAutomation.csproj --configuration Release'
+        }
       }
     }
     stage('Install Playwright Browsers') {
       steps {
-        sh 'pwsh bin/Release/net8.0/playwright.ps1 install'
+        dir('JupiterCloudAutomation') {
+          sh 'pwsh bin/Release/net8.0/playwright.ps1 install'
+        }
       }
     }
     stage('Run Tests') {
       steps {
-        sh 'dotnet test JupiterCloudAutomation.csproj --configuration Release --no-build'
+        dir('JupiterCloudAutomation') {
+          sh 'dotnet test JupiterCloudAutomation.csproj --configuration Release --no-build --logger "console;verbosity=detailed"'
+        }
       }
     }
     stage('Generate Report') {
       steps {
-        archiveArtifacts 'playwright-report/**'
+        archiveArtifacts 'JupiterCloudAutomation/playwright-report/**'
       }
     }
   }
   post {
     always {
       publishHTML(target: [
-        reportDir: 'playwright-report',
+        reportDir: 'JupiterCloudAutomation/playwright-report',
         reportFiles: 'index.html',
         reportName: 'Playwright Report'
       ])
