@@ -33,7 +33,8 @@ namespace JupiterCloudAutomation.Pages
         public async Task NavigateAsync()
         {
             await _page.GotoAsync("http://jupiter.cloud.planittesting.com/#/contact");
-            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 30000 });
+            await _page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new() { Timeout = 30000 });
+            await _page.WaitForSelectorAsync("input#forename", new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
         }
 
         public async Task FillFormAsync(string forename, string email, string message)
@@ -88,6 +89,7 @@ namespace JupiterCloudAutomation.Pages
         {
             try
             {
+                await NavigateAsync();
                 await _forenameInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
                 await _forenameInput.FillAsync("");
                 await _emailInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
