@@ -4,34 +4,34 @@ pipeline {
     stage('Checkout') {
       steps {
         git branch: 'main', url: 'https://github.com/olegkoj/jupiter-cloud-automation-csharp.git'
-        sh 'ls -la'
+        bat "dir"
       }
     }
     stage('Restore Dependencies') {
       steps {
         dir('JupiterCloudAutomation') {
-          sh 'dotnet restore JupiterCloudAutomation.csproj'
+          bat "dotnet restore JupiterCloudAutomation.csproj"
         }
       }
     }
     stage('Build') {
       steps {
         dir('JupiterCloudAutomation') {
-          sh 'dotnet build JupiterCloudAutomation.csproj --configuration Release'
+          bat "dotnet build JupiterCloudAutomation.csproj --configuration Release"
         }
       }
     }
     stage('Install Playwright Browsers') {
       steps {
         dir('JupiterCloudAutomation') {
-          sh 'pwsh bin/Release/net8.0/playwright.ps1 install'
+          bat "pwsh bin\\Release\\net8.0\\playwright.ps1 install"
         }
       }
     }
     stage('Run Tests') {
       steps {
         dir('JupiterCloudAutomation') {
-          sh 'dotnet test JupiterCloudAutomation.csproj --configuration Release --no-build --logger "console;verbosity=detailed"'
+          bat "dotnet test JupiterCloudAutomation.csproj --configuration Release --no-build --logger \"console;verbosity=detailed\""
         }
       }
     }
