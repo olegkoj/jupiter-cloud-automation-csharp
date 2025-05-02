@@ -20,9 +20,9 @@ namespace JupiterCloudAutomation.Pages
         public ContactPage(IPage page)
         {
             _page = page;
-            _forenameInput = _page.Locator("#forename");
-            _emailInput = _page.Locator("#email");
-            _messageInput = _page.Locator("#message");
+            _forenameInput = _page.Locator("input#forename");
+            _emailInput = _page.Locator("input#email");
+            _messageInput = _page.Locator("textarea#message");
             _submitButton = _page.Locator("a.btn-contact");
             _successMessage = _page.Locator("div.alert:has-text('Thanks')");
             _forenameError = _page.Locator("#forename-err");
@@ -33,17 +33,22 @@ namespace JupiterCloudAutomation.Pages
         public async Task NavigateAsync()
         {
             await _page.GotoAsync("http://jupiter.cloud.planittesting.com/#/contact");
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 30000 });
         }
 
         public async Task FillFormAsync(string forename, string email, string message)
         {
+            await _forenameInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
             await _forenameInput.FillAsync(forename);
+            await _emailInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
             await _emailInput.FillAsync(email);
+            await _messageInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
             await _messageInput.FillAsync(message);
         }
 
         public async Task SubmitFormAsync()
         {
+            await _submitButton.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
             await _submitButton.ClickAsync();
         }
 
@@ -64,26 +69,37 @@ namespace JupiterCloudAutomation.Pages
         public async Task VerifyErrorMessagesAsync(bool forenameError, bool emailError, bool messageError)
         {
             if (forenameError)
-                await Assertions.Expect(_forenameError).ToBeVisibleAsync();
+                await Assertions.Expect(_forenameError).ToBeVisibleAsync(new() { Timeout = 30000 });
             else
-                await Assertions.Expect(_forenameError).ToBeHiddenAsync();
+                await Assertions.Expect(_forenameError).ToBeHiddenAsync(new() { Timeout = 30000 });
 
             if (emailError)
-                await Assertions.Expect(_emailError).ToBeVisibleAsync();
+                await Assertions.Expect(_emailError).ToBeVisibleAsync(new() { Timeout = 30000 });
             else
-                await Assertions.Expect(_emailError).ToBeHiddenAsync();
+                await Assertions.Expect(_emailError).ToBeHiddenAsync(new() { Timeout = 30000 });
 
             if (messageError)
-                await Assertions.Expect(_messageError).ToBeVisibleAsync();
+                await Assertions.Expect(_messageError).ToBeVisibleAsync(new() { Timeout = 30000 });
             else
-                await Assertions.Expect(_messageError).ToBeHiddenAsync();
+                await Assertions.Expect(_messageError).ToBeHiddenAsync(new() { Timeout = 30000 });
         }
 
         public async Task ClearFormAsync()
         {
-            await _forenameInput.FillAsync("");
-            await _emailInput.FillAsync("");
-            await _messageInput.FillAsync("");
+            try
+            {
+                await _forenameInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
+                await _forenameInput.FillAsync("");
+                await _emailInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
+                await _emailInput.FillAsync("");
+                await _messageInput.WaitForAsync(new() { State = WaitForSelectorState.Visible, Timeout = 30000 });
+                await _messageInput.FillAsync("");
+            }
+            catch (Exception)
+            {
+                await _page.ScreenshotAsync(new() { Path = $"clear-form-failure-{DateTime.Now.Ticks}.png" });
+                throw;
+            }
         }
     }
 }
