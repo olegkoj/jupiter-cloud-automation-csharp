@@ -24,7 +24,7 @@ pipeline {
     stage('Install Playwright Browsers') {
       steps {
         dir('JupiterCloudAutomation') {
-          bat "pwsh bin\\Release\\net8.0\\playwright.ps1 install"
+          powershell "pwsh bin\\Release\\net8.0\\playwright.ps1 install"
         }
       }
     }
@@ -37,17 +37,22 @@ pipeline {
     }
     stage('Generate Report') {
       steps {
-        archiveArtifacts 'JupiterCloudAutomation/playwright-report/**'
+        dir('JupiterCloudAutomation') {
+          archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
+        }
       }
     }
   }
   post {
     always {
-      publishHTML(target: [
-        reportDir: 'JupiterCloudAutomation/playwright-report',
-        reportFiles: 'index.html',
-        reportName: 'Playwright Report'
-      ])
+      dir('JupiterCloudAutomation') {
+        publishHTML(target: [
+          reportDir: 'playwright-report',
+          reportFiles: 'index.html',
+          reportName: 'Playwright Report',
+          allowMissing: true
+        ])
+      }
     }
   }
 }
