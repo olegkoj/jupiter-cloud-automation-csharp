@@ -1,1 +1,0 @@
-# jupiter-cloud-automation-csharp

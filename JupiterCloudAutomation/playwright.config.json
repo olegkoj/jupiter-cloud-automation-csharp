@@ -1,0 +1,26 @@
+{
+    "testDir": "./Tests",
+    "retries": 2,
+    "timeout": 60000,
+    "reporter": [
+        [
+            "html",
+            { "outputFolder": "playwright-report" }
+        ],
+        [ "list" ]
+    ],
+    "use": {
+        "baseURL": "http://jupiter.cloud.planittesting.com/",
+        "trace": "on",
+        "screenshot": "only-on-failure",
+        "video": "retain-on-failure",
+        "viewport": {
+            "width": 1280,
+            "height": 720
+        },
+        "launchOptions": {
+            "timeout": 60000
+        },
+        "navigationTimeout": 60000
+    }
+}
